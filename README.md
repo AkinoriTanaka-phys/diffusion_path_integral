@@ -2,23 +2,20 @@
 
 This repository contains the implementation of the experiments with 2D synthetic data conducted in our paper, "Understanding Diffusion Models by Feynman's Path Integral," https://arxiv.org/abs/2403.11262. In this repository, we support the entire process from model training to likelihood calculations on simple data.
 
-We use the following libraries.
-- `numpy`
-- `sympy`
-- `scipy`
-- `matplotlib`
-- `sklearn`
-- `jax`
-- `flax`
-- `tqdm`
-- `os`
+## Requirements
+
+To set up the environment for running this repository, please refer to the `requirements.txt` file. You can use 
+```
+pip install -r requirements.txt
+```
+but please note that the library versions listed are the ones we used during our tests. The code should work with other versions as well.
 
 # How to obtain the trained model checkpoint
 
 Please run `get_trained_model.py`, for example:
 
 ```bash
-$ python get_trained_model.py --data sr --sde simple --n 1000 --bs 32 --lr 0.001
+python get_trained_model.py --data sr --sde simple --n 1000 --bs 32 --lr 0.001
 ```
 
 Each argument means:
@@ -39,7 +36,7 @@ In the paper, we use `--n 16000 --bs 512 --lr 0.001`, but it takes a little time
 Please run `measure_metrics.py`, for example:
 
 ```bash
-$ python measure_metrics.py --ckpt_path checkpoints/diff_sr_simple_0.001_1000_32 --measure nll
+python measure_metrics.py --ckpt_path checkpoints/diff_sr_simple_0.001_1000_32 --measure nll
 ```
 
 Then, the nll (or precisely, empirical cross entropy) will be calculated. The log is at `{home}/nll/test/diff_sr_simple_0.001_1000_32/dx0.01inner_rtol1e-05inner_atol1e-05outer_rtol0.001outer_atol0.001err_est_model.txt`.
@@ -47,12 +44,12 @@ Then, the nll (or precisely, empirical cross entropy) will be calculated. The lo
 You can also measure 2-wasserstein:
 
 ```bash
-$ python measure_metrics.py --ckpt_path checkpoints/diff_sr_simple_0.001_1000_32 --measure w2
+python measure_metrics.py --ckpt_path checkpoints/diff_sr_simple_0.001_1000_32 --measure w2
 ```
 
 Details on the argument of this script is as follows:
 - `--ckpt_path` checkpoint path
-- `--measure` should be `nll` or `we`
+- `--measure` should be `nll` or `w2`
 - `--head` should be 
     - `test`: runs relatively light program, and 
     - `paper`: runs it paper setting.
@@ -64,6 +61,51 @@ Details on the argument of this script is as follows:
 - `--outer_atol`: small number used for outer integral
 
 > (Note for time-independent models) If one want to apply likelihood calculation with checkpoints trained by function `get_trained_model()` with option `training_scheme == "score matching"` or `training_scheme == "denoising score matching"` defined in `training/train.py`, it is necessary to add `sde` info to these checkpoints because the above subroutine read `sde` info automatically.
+
+## How to read logs with NLL calculation
+
+
+The log files with `--measure nll` option are formatted as follows. The part marked as # (which is not written in real log), corresponds intermediate state of the integral from time $T_{min}$ to $t$, and the part marked as ## (which is not written in real log) shows the results.
+```
+[data-generator] will be used.
+...
+# logs for solving ODE with the 1st 10 data formatted as
+outer t:[ODE time]
+x = [array for 10 x(t)]
+delta x = [array for 10 delta x(t)]
+└── delta x error: [array for 10 delta x(t) local error]
+corrs = [log-likelihood correction value (coefficient of h) array at t]
+└── corrs error: [its accumulated error array]
+...
+new data: [1st 10 data array]
+  ## result of the integral up to the 1st 10 data formatted
+  nll: mean=[mean(nll(10 data))], std=[its srd], std/sqrt(n)=[normalized value], n=10
+  corr: mean=[mean(nll_corr(10 data))], std=[its srd], std/sqrt(n)=[normalized value], n=10
+  └── corr error: mean=[mean(nll_corr_accumulated_error(10 data))], std=[its srd], std/sqrt(n)=[normalized value], n=10
+...
+# logs for solving ODE with the 2nd 10 data
+...
+new data: [2nd 10 data array]
+  ## result of the integral up to the 2nd 10 data (i.e., 20 data if the 1st trial succeeded in)
+...
+```
+If it failed to calculate nll with given 10 data, it outputs
+```
+new data excluded: [excluded data array]
+```
+to the same log file, and continue next 10 point calculation.
+
+
+The log files with `--measure w2` option are formatted as follows:
+```
+3000 [data] generated
+h: [array for h values used in the calculations]
+mean: [array for mean w2 values]
+std: [array for w2 values std]
+std/sqrt(n): [normalized values]
+raw data: [raw w2 array with shape (number of h values, number of datapoints in each calculation)]
+```
+The log file for w2 will be updated after all calculations are terminated.
 
 ## Tips for stabilizing NLL calculation
 
