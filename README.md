@@ -62,7 +62,7 @@ Details on the argument of this script is as follows:
 
 > (Note for time-independent models) If one want to apply likelihood calculation with checkpoints trained by function `get_trained_model()` with option `training_scheme == "score matching"` or `training_scheme == "denoising score matching"` defined in `training/train.py`, it is necessary to add `sde` info to these checkpoints because the above subroutine read `sde` info automatically.
 
-## How to read logs with NLL calculation
+## How to read logs 
 
 
 The log files with `--measure nll` option are formatted as follows. The part marked as # (which is not written in real log), corresponds intermediate state of the integral from time $T_{min}$ to $t$, and the part marked as ## (which is not written in real log) shows the results.
