@@ -135,11 +135,13 @@ def measure_nll(ckpt_path):
     corrs_errs = []
     for _ in range(N_outer_trials):
         x0 = data_generator(data_size)[:N_inner_trials]
+        with open(save_path, 'a') as f:
+            f.write(f"# new samples are generated, and start solving ODE\n")
 
         nll, corr, err = nll_estimator(x0, ckpt["model"], ckpt["sde"], dx=args.dx, rtol_dir=rtol_dir, atol_dir=atol_dir, save_path=save_path)
         if len(nll)==0: # integral failed somewhere
             with open(save_path, 'a') as f:
-                f.write(f"new data excluded: {x0.tolist()}\n\n")
+                f.write(f"\nnew data excluded: {x0.tolist()}\n\n")
         else:
             nlls.append(np.array(nll).tolist())
             corrs.append(np.array(corr).tolist())
@@ -149,10 +151,11 @@ def measure_nll(ckpt_path):
             corr_flatten = np.array(sum(corrs, [])).reshape(-1)
             corrs_errs_flatten = np.array(sum(corrs_errs, [])).reshape(-1)
             with open(save_path, 'a') as f:
-                f.write(f"new data: {x0.tolist()}\n")
+                f.write(f"ODE calculation completed with new data {x0.tolist()}\n")
+                f.write(f"## nll statistics\n")
                 f.write(f"  nll: mean={np.mean(nll_flatten)}, std={np.std(nll_flatten)}, std/sqrt(n)={np.std(nll_flatten)/len(nll_flatten)**(1/2)}, n={len(nll_flatten)}\n")
                 f.write(f"  corr: mean={np.mean(corr_flatten)}, std={np.std(corr_flatten)}, std/sqrt(n)={np.std(corr_flatten)/len(corr_flatten)**(1/2)}, n={len(corr_flatten)}\n")
-                f.write(f"  └── corr error: mean={np.mean(corrs_errs_flatten)}, std={np.std(corrs_errs_flatten)}, std/sqrt(n)={np.std(corrs_errs_flatten)/len(corrs_errs_flatten)**(1/2)}, n={len(corrs_errs_flatten)}\n")
+                f.write(f"  └── corr error: mean={np.mean(corrs_errs_flatten)}, std={np.std(corrs_errs_flatten)}, std/sqrt(n)={np.std(corrs_errs_flatten)/len(corrs_errs_flatten)**(1/2)}, n={len(corrs_errs_flatten)}\n\n")
 
 if __name__ == '__main__':
     args = parse_args()    

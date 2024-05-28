@@ -248,6 +248,7 @@ def get_nll_with_1st_correction_by_solve_ivp_outer_integral_with_subtract_err_es
             f.write(f"└── delta x error: {get_errdeltax_from_in_corr_subroutine(x_deltax_deltalogq, batchsize, dim)}\n")
             f.write(f"corrs = {get_logq_from_in_corr_subroutine(x_deltax_deltalogq, batchsize, dim)}\n")
             f.write(f"└── corrs error: {get_errlogqx_from_in_corr_subroutine(x_deltax_deltalogq, batchsize, dim)}\n")
+            f.write("#\n")
 
         return np.concatenate([drift_flatten, 
                                v_deltax_flatten, 
@@ -363,6 +364,7 @@ def get_nll_with_1st_correction_by_solve_ivp_outer_integral_with_model_err_estim
             f.write(f"└── delta x error: {get_errdeltax_from_in_corr_subroutine(x_deltax_deltalogq, batchsize, dim)}\n")
             f.write(f"corrs = {get_logq_from_in_corr_subroutine(x_deltax_deltalogq, batchsize, dim)}\n")
             f.write(f"└── corrs error: {get_errlogqx_from_in_corr_subroutine(x_deltax_deltalogq, batchsize, dim)}\n")
+            f.write("#\n")
 
         return np.concatenate([drift_flatten, 
                                v_deltax_flatten, 

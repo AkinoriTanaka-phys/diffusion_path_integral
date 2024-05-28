@@ -68,27 +68,40 @@ Details on the argument of this script is as follows:
 The log files with `--measure nll` option are formatted as follows. The part marked as # (which is not written in real log), corresponds intermediate state of the integral from time $T_{min}$ to $t$, and the part marked as ## (which is not written in real log) shows the results.
 ```
 [data-generator] will be used.
-...
-# logs for solving ODE with the 1st 10 data formatted as
-outer t:[ODE time]
-x = [array for 10 x(t)]
-delta x = [array for 10 delta x(t)]
-└── delta x error: [array for 10 delta x(t) local error]
-corrs = [log-likelihood correction value (coefficient of h) array at t]
-└── corrs error: [its accumulated error array]
-...
-new data: [1st 10 data array]
-  ## result of the integral up to the 1st 10 data formatted
-  nll: mean=[mean(nll(10 data))], std=[its srd], std/sqrt(n)=[normalized value], n=10
-  corr: mean=[mean(nll_corr(10 data))], std=[its srd], std/sqrt(n)=[normalized value], n=10
-  └── corr error: mean=[mean(nll_corr_accumulated_error(10 data))], std=[its srd], std/sqrt(n)=[normalized value], n=10
-...
-# logs for solving ODE with the 2nd 10 data
-...
-new data: [2nd 10 data array]
-  ## result of the integral up to the 2nd 10 data (i.e., 20 data if the 1st trial succeeded in)
+# new samples are generated, and start solving ODE
+[log during integration]
+#
+ODE calculation completed with new data [1st 10 data array]
+## nll statistics
+  nll: mean=..., std=..., std/sqrt(n)=..., n=10
+  corr: mean=..., std=..., std/sqrt(n)=..., n=10
+  └── corr error: mean=..., std=..., std/sqrt(n)=..., n=10
+
+# new samples are generated, and start solving ODE
+[log during integration]
+#
+ODE calculation completed with new data [2nd 10 data array]
+## nll statistics
+  nll: mean=..., std=..., std/sqrt(n)=..., n=20
+  corr: mean=..., std=..., std/sqrt(n)=..., n=20
+  └── corr error: mean=..., std=..., std/sqrt(n)=..., n=20
+
 ...
 ```
+`corr` in `## nll statistics` means 1st order correction of nll with $\mathfrak{h}$. 
+
+> The log format in `[log during integration]` is as follows:
+> ```
+> #
+> outer t:[time]
+> x = [array for 10 x(t)]
+> delta x = [array for 10 delta x(t)]
+> └── delta x error: [array for 10 delta x(t) local error]
+> corrs = [log-likelihood correction value (coefficient of h) array at t]
+> └── corrs error: [its accumulated error array]
+> #
+> ```
+
 If it failed to calculate nll with given 10 data, it outputs
 ```
 new data excluded: [excluded data array]
