@@ -65,7 +65,7 @@ Details on the argument of this script is as follows:
 ## How to read logs 
 
 
-The log files with `--measure nll` option are formatted as follows. The part marked as # (which is not written in real log), corresponds intermediate state of the integral from time $T_{min}$ to $t$, and the part marked as ## (which is not written in real log) shows the results.
+The log files with `--measure nll` option are formatted as follows. The part marked as # corresponds intermediate state of the integral from time $T_{min}$ to $t$, and the part marked as ## shows the results.
 ```
 [data-generator] will be used.
 # new samples are generated, and start solving ODE
